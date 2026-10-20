@@ -197,9 +197,10 @@
     <script>
         let isAdmin = false;
         
-        // ! สำคัญมาก: ใส่ URL Web App ของคุณที่นี่
+        // ! สำคัญมาก: นำ Web App URL อันใหม่ที่เพิ่ง Deploy มาใส่ตรงนี้
         const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbys8K2eHh9qI2T5v0wDqHHT_a361Zgq9rO7L4hT2LqF2K7p5C5q9G_L-X4L1eX/exec'; 
-        const sheetId = '1CrNVkoqY_64xjXCawvj1uEqwzJFS6m0f1SXkXf54Ixc';
+        const sheetId = '1K2PafpmtM6OlvP8aTgtByYBUSgn-jqAeHTu99p-kC4s'; // รหัสไฟล์ใหม่
+        const targetSheetName = 'รวมข้อมูลเว็บคอร์ด'; // ดึงข้อมูลจากชีตนี้
 
         // ข้อมูลคอร์ดฮิตเริ่มต้น (In-Memory)
         let popularChords = [
@@ -346,16 +347,22 @@
             tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500"><i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-primary"></i><br>กำลังโหลดข้อมูล...</td></tr>`;
             
             try {
-                const queryUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Sheet1`;
-                const response = await fetch(queryUrl);
-                const csvData = await response.text();
+                // ดึงข้อมูลผ่าน Web App แทนการดึงตรงจาก Sheet เพื่อหลีกเลี่ยงข้อผิดพลาด CORS
+                const response = await fetch(gasWebAppUrl + "?action=getChords", {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
                 
-                const rows = csvData.split('\n').map(row => row.split(',').map(cell => cell.replace(/^"(.*)"$/, '$1')));
-
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const result = await response.json();
+                if (result.status === 'error') throw new Error(result.message);
+                
+                const rows = result.data || [];
                 tbody.innerHTML = '';
                 
                 if(rows.length <= 1) {
-                    tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">ยังไม่มีข้อมูลใน Sheet</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">ยังไม่มีข้อมูลใน Sheet<br><span class="text-xs">(กำลังรอเพิ่มข้อมูล หรือเพิ่งสร้างชีตใหม่)</span></td></tr>`;
                     return;
                 }
 
@@ -387,12 +394,19 @@
                     tbody.appendChild(tr);
                 }
                 
-                // หลังจากโหลดเสร็จ ให้เรียก updateUI เพื่อตั้งค่า Editable class อีกครั้ง
                 updateUI();
 
             } catch (error) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-400"><i class="fa-solid fa-circle-exclamation text-xl mb-2"></i><br>โหลดข้อมูลไม่สำเร็จ</td></tr>`;
-                console.error(error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-8 text-center text-red-400 bg-red-900/10">
+                            <i class="fa-solid fa-circle-exclamation text-2xl mb-2"></i><br>
+                            <span class="font-bold">โหลดข้อมูลไม่สำเร็จ</span><br>
+                            <span class="text-sm text-gray-400 mt-2 block">อาจเป็นเพราะคุณยังไม่ได้กด Deploy ใหม่ หลังจากเพิ่มโค้ด doGet</span><br>
+                            <span class="text-xs text-red-500 mt-1 block">${error.message}</span>
+                        </td>
+                    </tr>`;
+                console.error("Fetch Error:", error);
             }
         }
 
