@@ -1,397 +1,4 @@
-<!DOCTYPE html>
-<html lang="th" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>รวมคอร์ด - คอร์ดเพลงฮิต ตารางคอร์ดกีตาร์</title>
-    
-    <!-- Google Fonts: Prompt for Modern Thai Typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Prompt', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: '#ff0000', // Modern Red
-                        dark: '#121212', // Deep Black
-                        darker: '#0a0a0a', // Darker Black
-                        card: '#1e1e1e', // Card background
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background-color: #0a0a0a;
-            color: #ffffff;
-        }
-        .chord-text {
-            color: #ff0000;
-            font-weight: bold;
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #121212;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #ff0000;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #cc0000;
-        }
-    </style>
-</head>
-<body class="font-sans antialiased flex flex-col min-h-screen">
-
-    <!-- Navigation Bar -->
-    <nav class="bg-darker border-b border-red-600/30 sticky top-0 z-50 shadow-lg shadow-red-900/10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex-shrink-0 flex items-center">
-                    <a href="#" class="text-2xl font-bold tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-guitar text-primary"></i>
-                        <span class="text-white">รวม<span class="text-primary">คอร์ด</span></span>
-                    </a>
-                </div>
-
-                <!-- Desktop Menu -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#home" class="text-gray-300 hover:text-primary transition duration-300">หน้าแรก</a>
-                    <a href="#popular" class="text-gray-300 hover:text-primary transition duration-300">คอร์ดเพลงฮิต</a>
-                    <a href="#new" class="text-gray-300 hover:text-primary transition duration-300">คอร์ดเพลงใหม่</a>
-                    <a href="#chord-chart" class="text-gray-300 hover:text-primary transition duration-300">ตารางคอร์ด</a>
-                    <button id="navLoginBtn" onclick="showLoginModal()" class="bg-primary hover:bg-red-700 text-white px-5 py-2 rounded-full font-medium transition duration-300 shadow-md shadow-red-500/30">
-                        เข้าสู่ระบบ
-                    </button>
-                    <!-- Admin User Info (Hidden by default) -->
-                    <div id="navAdminInfo" class="hidden items-center gap-3">
-                        <span class="text-white font-medium"><i class="fa-solid fa-user-shield text-primary mr-1"></i> Bank (แอดมิน)</span>
-                        <button onclick="logoutAdmin()" class="text-gray-400 hover:text-red-500 text-sm transition-colors">
-                            ออกจากระบบ
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Mobile menu button -->
-                <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-btn" class="text-gray-300 hover:text-white focus:outline-none">
-                        <i class="fa-solid fa-bars text-2xl"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile Menu Panel -->
-        <div id="mobile-menu" class="md:hidden hidden bg-dark border-t border-gray-800">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-primary/20 hover:text-primary">หน้าแรก</a>
-                <a href="#popular" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-primary/20 hover:text-primary">คอร์ดเพลงฮิต</a>
-                <a href="#new" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-primary/20 hover:text-primary">คอร์ดเพลงใหม่</a>
-                <a href="#chord-chart" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-primary/20 hover:text-primary">ตารางคอร์ด</a>
-                <button id="mobileLoginBtn" onclick="showLoginModal()" class="w-full text-left mt-2 block px-3 py-2 rounded-md text-base font-medium bg-primary text-white hover:bg-red-700">เข้าสู่ระบบ</button>
-                <div id="mobileAdminInfo" class="hidden mt-2 px-3 py-2 rounded-md text-base font-medium text-white bg-gray-800 flex justify-between items-center">
-                    <span><i class="fa-solid fa-user-shield text-primary mr-1"></i> Bank (แอดมิน)</span>
-                    <button onclick="logoutAdmin()" class="text-gray-400 hover:text-red-500 text-sm">ออกจากระบบ</button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Admin Floating Action Button for Upload (Hidden by default) -->
-    <div id="adminFab" class="hidden fixed bottom-6 right-6 z-40 flex flex-col gap-3">
-        <button class="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg shadow-blue-900/50 flex items-center justify-center transition-transform hover:scale-110" onclick="showAdminAction('อัปโหลดวิดีโอ')">
-            <i class="fa-solid fa-video"></i>
-        </button>
-        <button class="w-12 h-12 bg-green-600 hover:bg-green-700 text-white rounded-full shadow-lg shadow-green-900/50 flex items-center justify-center transition-transform hover:scale-110" onclick="showAdminAction('อัปโหลดรูปภาพ')">
-            <i class="fa-solid fa-image"></i>
-        </button>
-        <button class="w-14 h-14 bg-primary hover:bg-red-700 text-white rounded-full shadow-lg shadow-red-900/50 flex items-center justify-center text-xl transition-transform hover:scale-110" onclick="showAdminAction('เพิ่มคอร์ดใหม่')">
-            <i class="fa-solid fa-plus"></i>
-        </button>
-    </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section with Search -->
-    <section id="home" class="relative bg-dark py-20 lg:py-32 overflow-hidden">
-        <div class="absolute inset-0 z-0">
-            <!-- Background pattern/gradient -->
-            <div class="absolute inset-0 bg-gradient-to-b from-red-900/20 to-darker"></div>
-        </div>
-        
-        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-                ค้นหา <span class="text-primary text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700">คอร์ดเพลง</span> ที่คุณชื่นชอบ
-            </h1>
-            <p class="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
-                คลังคอร์ดกีตาร์ที่ใหญ่ที่สุด อัปเดตใหม่ทุกวัน เล่นง่าย สบายตา รองรับทุกอุปกรณ์
-            </p>
-            
-            <!-- Search Bar -->
-            <div class="max-w-3xl mx-auto">
-                <div class="relative flex items-center w-full h-14 rounded-full focus-within:shadow-lg focus-within:shadow-red-500/20 bg-card overflow-hidden border border-gray-700 hover:border-gray-500 transition-colors">
-                    <div class="grid place-items-center h-full w-12 text-gray-400">
-                        <i class="fa-solid fa-search"></i>
-                    </div>
-                    <input
-                    class="peer h-full w-full outline-none text-sm text-white bg-card pr-2 placeholder-gray-500"
-                    type="text"
-                    id="search"
-                    placeholder="ค้นหาชื่อเพลง, ศิลปิน, หรือเนื้อเพลง..." />
-                    <button class="bg-primary hover:bg-red-700 text-white h-full px-6 font-medium transition-colors" onclick="showSearchMsg()">
-                        ค้นหา
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Main Content -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20 w-full">
-
-        <!-- Popular Chords Section -->
-        <section id="popular">
-            <div class="flex justify-between items-end mb-8 relative">
-                <div>
-                    <h2 class="text-3xl font-bold border-l-4 border-primary pl-4 text-white flex items-center gap-2">
-                        คอร์ดเพลงฮิต
-                        <button class="admin-edit-btn hidden text-sm bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded ml-2 transition-colors"><i class="fa-solid fa-pen"></i> แก้ไขหมวดหมู่</button>
-                    </h2>
-                    <p class="text-gray-400 mt-2 pl-5">เพลงฮิตติดชาร์ตที่คนเล่นมากที่สุดในสัปดาห์นี้</p>
-                </div>
-                <a href="#" class="text-primary hover:text-white transition-colors hidden sm:block">ดูทั้งหมด <i class="fa-solid fa-arrow-right text-sm"></i></a>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Card 1 -->
-                <div class="bg-card rounded-xl overflow-hidden border border-gray-800 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(255,0,0,0.15)] transition-all duration-300 group relative">
-                    <!-- Admin Edit Button -->
-                    <button class="admin-edit-btn hidden absolute top-2 left-2 z-10 bg-black/70 hover:bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors" onclick="showAdminAction('แก้ไขเพลง: รักแรก')">
-                        <i class="fa-solid fa-pen text-xs"></i>
-                    </button>
-                    <div class="h-40 bg-gray-800 relative overflow-hidden flex items-center justify-center">
-                        <i class="fa-solid fa-music text-4xl text-gray-600 group-hover:scale-110 transition-transform duration-300"></i>
-                        <div class="absolute top-2 right-2 bg-primary text-xs font-bold px-2 py-1 rounded">ฮิตอันดับ 1</div>
-                    </div>
-                    <div class="p-5">
-                        <h3 class="text-lg font-bold text-white mb-1 truncate">รักแรก (First Love)</h3>
-                        <p class="text-gray-400 text-sm mb-4">Nont Tanont</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-mono bg-dark px-2 py-1 rounded text-gray-300 border border-gray-700">Key: C</span>
-                            <button class="text-primary hover:text-red-400 text-sm font-medium">ดูคอร์ด</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 2 -->
-                <div class="bg-card rounded-xl overflow-hidden border border-gray-800 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(255,0,0,0.15)] transition-all duration-300 group relative">
-                    <!-- Admin Edit Button -->
-                    <button class="admin-edit-btn hidden absolute top-2 left-2 z-10 bg-black/70 hover:bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors" onclick="showAdminAction('แก้ไขเพลง: ถ้าเราเจอกันอีก')">
-                        <i class="fa-solid fa-pen text-xs"></i>
-                    </button>
-                    <div class="h-40 bg-gray-800 relative overflow-hidden flex items-center justify-center">
-                        <i class="fa-solid fa-music text-4xl text-gray-600 group-hover:scale-110 transition-transform duration-300"></i>
-                    </div>
-                    <div class="p-5">
-                        <h3 class="text-lg font-bold text-white mb-1 truncate">ถ้าเราเจอกันอีก (Until Then)</h3>
-                        <p class="text-gray-400 text-sm mb-4">Tilly Birds</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-mono bg-dark px-2 py-1 rounded text-gray-300 border border-gray-700">Key: G</span>
-                            <button class="text-primary hover:text-red-400 text-sm font-medium">ดูคอร์ด</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="bg-card rounded-xl overflow-hidden border border-gray-800 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(255,0,0,0.15)] transition-all duration-300 group relative">
-                    <!-- Admin Edit Button -->
-                    <button class="admin-edit-btn hidden absolute top-2 left-2 z-10 bg-black/70 hover:bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors" onclick="showAdminAction('แก้ไขเพลง: ซ่อน(กลิ่น)')">
-                        <i class="fa-solid fa-pen text-xs"></i>
-                    </button>
-                    <div class="h-40 bg-gray-800 relative overflow-hidden flex items-center justify-center">
-                        <i class="fa-solid fa-music text-4xl text-gray-600 group-hover:scale-110 transition-transform duration-300"></i>
-                    </div>
-                    <div class="p-5">
-                        <h3 class="text-lg font-bold text-white mb-1 truncate">ซ่อน(กลิ่น)</h3>
-                        <p class="text-gray-400 text-sm mb-4">Palmy</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-mono bg-dark px-2 py-1 rounded text-gray-300 border border-gray-700">Key: F</span>
-                            <button class="text-primary hover:text-red-400 text-sm font-medium">ดูคอร์ด</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 4 -->
-                <div class="bg-card rounded-xl overflow-hidden border border-gray-800 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(255,0,0,0.15)] transition-all duration-300 group relative">
-                    <!-- Admin Edit Button -->
-                    <button class="admin-edit-btn hidden absolute top-2 left-2 z-10 bg-black/70 hover:bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors" onclick="showAdminAction('แก้ไขเพลง: สลักจิต')">
-                        <i class="fa-solid fa-pen text-xs"></i>
-                    </button>
-                    <div class="h-40 bg-gray-800 relative overflow-hidden flex items-center justify-center">
-                        <i class="fa-solid fa-music text-4xl text-gray-600 group-hover:scale-110 transition-transform duration-300"></i>
-                    </div>
-                    <div class="p-5">
-                        <h3 class="text-lg font-bold text-white mb-1 truncate">สลักจิต</h3>
-                        <p class="text-gray-400 text-sm mb-4">ป๊อบ ปองกูล feat. ดา เอ็นโดรฟิน</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-mono bg-dark px-2 py-1 rounded text-gray-300 border border-gray-700">Key: D</span>
-                            <button class="text-primary hover:text-red-400 text-sm font-medium">ดูคอร์ด</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <!-- New Chords (2/3 width on desktop) -->
-            <section id="new" class="lg:col-span-2 relative">
-                <h2 class="text-3xl font-bold border-l-4 border-primary pl-4 text-white mb-6 flex items-center gap-2">
-                    คอร์ดเพลงอัปเดตใหม่ <span class="text-xs bg-green-600/20 text-green-400 px-2 py-1 rounded-full ml-2 border border-green-600/30">ดึงจาก Google Sheets</span>
-                    <button class="admin-edit-btn hidden text-sm bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded ml-auto transition-colors"><i class="fa-solid fa-pen"></i> จัดการข้อมูล</button>
-                </h2>
-                
-                <div class="bg-card rounded-xl border border-gray-800 overflow-hidden">
-                    <ul id="dynamic-chords-list" class="divide-y divide-gray-800">
-                        <li class="p-8 text-center text-gray-400 flex flex-col items-center justify-center">
-                            <i class="fa-solid fa-circle-notch fa-spin text-4xl text-primary mb-4"></i>
-                            กำลังเชื่อมต่อฐานข้อมูล Google Sheets...
-                        </li>
-                    </ul>
-                    <div class="p-4 border-t border-gray-800 text-center bg-dark/50">
-                        <button onclick="loadChordsFromSheet()" class="text-primary hover:text-white text-sm font-medium transition-colors">
-                            <i class="fa-solid fa-rotate-right mr-1"></i> รีเฟรชข้อมูลล่าสุด
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Basic Chord Chart (1/3 width on desktop) -->
-            <section id="chord-chart" class="lg:col-span-1">
-                <h2 class="text-3xl font-bold border-l-4 border-primary pl-4 text-white mb-6">ตารางคอร์ดพื้นฐาน</h2>
-                
-                <div class="bg-card p-6 rounded-xl border border-gray-800 shadow-lg">
-                    <p class="text-gray-400 text-sm mb-6">คอร์ดที่ใช้บ่อยสำหรับผู้เริ่มต้น (Major & Minor)</p>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-dark p-3 rounded border border-gray-700 text-center hover:border-primary transition-colors cursor-default">
-                            <span class="text-xl font-bold text-white">C</span>
-                            <div class="text-xs text-gray-500 mt-1">C - E - G</div>
-                        </div>
-                        <div class="bg-dark p-3 rounded border border-gray-700 text-center hover:border-primary transition-colors cursor-default">
-                            <span class="text-xl font-bold text-white">Am</span>
-                            <div class="text-xs text-gray-500 mt-1">A - C - E</div>
-                        </div>
-                        <div class="bg-dark p-3 rounded border border-gray-700 text-center hover:border-primary transition-colors cursor-default">
-                            <span class="text-xl font-bold text-white">G</span>
-                            <div class="text-xs text-gray-500 mt-1">G - B - D</div>
-                        </div>
-                        <div class="bg-dark p-3 rounded border border-gray-700 text-center hover:border-primary transition-colors cursor-default">
-                            <span class="text-xl font-bold text-white">Em</span>
-                            <div class="text-xs text-gray-500 mt-1">E - G - B</div>
-                        </div>
-                        <div class="bg-dark p-3 rounded border border-gray-700 text-center hover:border-primary transition-colors cursor-default">
-                            <span class="text-xl font-bold text-white">D</span>
-                            <div class="text-xs text-gray-500 mt-1">D - F# - A</div>
-                        </div>
-                        <div class="bg-dark p-3 rounded border border-gray-700 text-center hover:border-primary transition-colors cursor-default">
-                            <span class="text-xl font-bold text-white">Bm</span>
-                            <div class="text-xs text-gray-500 mt-1">B - D - F#</div>
-                        </div>
-                        <div class="bg-dark p-3 rounded border border-gray-700 text-center hover:border-primary transition-colors cursor-default">
-                            <span class="text-xl font-bold text-white">F</span>
-                            <div class="text-xs text-gray-500 mt-1">F - A - C</div>
-                        </div>
-                        <div class="bg-dark p-3 rounded border border-gray-700 text-center hover:border-primary transition-colors cursor-default">
-                            <span class="text-xl font-bold text-white">Dm</span>
-                            <div class="text-xs text-gray-500 mt-1">D - F - A</div>
-                        </div>
-                    </div>
-                    
-                    <button class="w-full mt-6 bg-transparent border border-primary text-primary hover:bg-primary hover:text-white py-2 rounded transition-colors font-medium text-sm">
-                        ดูตารางคอร์ดแบบเต็ม
-                    </button>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <!-- Login Modal -->
-    <div id="loginModal" class="fixed inset-0 bg-black/80 z-[70] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
-        <div class="bg-card p-8 rounded-2xl border border-gray-700 max-w-md w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-300" id="loginContent">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-lock text-primary"></i> แอดมินล็อกอิน
-                </h3>
-                <button onclick="hideLoginModal()" class="text-gray-400 hover:text-white transition-colors">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-            
-            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-1">ชื่อผู้ใช้ (Username)</label>
-                    <input type="text" id="username" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="กรอกชื่อผู้ใช้" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-1">รหัสผ่าน (Password)</label>
-                    <input type="password" id="password" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="กรอกรหัสผ่าน" required>
-                </div>
-                
-                <div id="loginError" class="text-red-500 text-sm hidden bg-red-500/10 border border-red-500/20 p-3 rounded-lg">
-                    ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง
-                </div>
-
-                <button type="submit" class="w-full bg-primary hover:bg-red-700 text-white py-3 rounded-lg font-medium transition-colors mt-2 shadow-lg shadow-red-900/20">
-                    เข้าสู่ระบบ
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add Chord Modal (สำหรับแอดมินเพิ่มข้อมูลลงชีต) -->
-    <div id="addChordModal" class="fixed inset-0 bg-black/80 z-[70] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
-        <div class="bg-card p-8 rounded-2xl border border-gray-700 max-w-md w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-300" id="addChordContent">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-plus text-primary"></i> เพิ่มคอร์ดใหม่
-                </h3>
-                <button onclick="hideAddChordModal()" class="text-gray-400 hover:text-white transition-colors">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-            
-            <form id="addChordForm" onsubmit="submitNewChord(event)" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-1">ชื่อเพลง</label>
-                    <input type="text" id="newSongName" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required placeholder="ตัวอย่าง: ทรงอย่างแบด">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-1">ศิลปิน</label>
-                    <input type="text" id="newArtist" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required placeholder="ตัวอย่าง: Paper Planes">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-1">ข้อมูลเพิ่มเติม</label>
-                    <input type="text" id="newExtraInfo" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="ตัวอย่าง: Key: C (หรือปล่อยว่าง)">
-                </div>
-                
+<!-- ... existing code ... -->
                 <button type="submit" id="submitChordBtn" class="w-full bg-primary hover:bg-red-700 text-white py-3 rounded-lg font-medium transition-colors mt-4 shadow-lg shadow-red-900/20">
                     บันทึกข้อมูลลง Google Sheets
                 </button>
@@ -399,469 +6,95 @@
         </div>
     </div>
 
-    <!-- Message Box (Instead of alert) -->
-    <div id="messageBox" class="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-card p-6 rounded-xl border border-gray-700 max-w-sm w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-300" id="messageContent">
-            <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
-                <i class="fa-solid fa-circle-info text-primary"></i> ข้อความระบบ
-            </h3>
-            <p class="text-gray-300 mb-6" id="messageText">กำลังค้นหา...</p>
-            <button onclick="hideMessageBox()" class="w-full bg-primary hover:bg-red-700 text-white py-2 rounded transition-colors font-medium">
-                ตกลง
-            </button>
+    <!-- Upload File Modal (หน้าต่างสำหรับอัปโหลดไฟล์รูป/วิดีโอ) -->
+    <div id="uploadFileModal" class="fixed inset-0 bg-black/80 z-[70] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
+        <div class="bg-card p-8 rounded-2xl border border-gray-700 max-w-md w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-300" id="uploadFileContent">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-white flex items-center gap-2" id="uploadFileTitle">
+                    <i class="fa-solid fa-cloud-arrow-up text-primary"></i> อัปโหลดไฟล์
+                </h3>
+                <button onclick="hideUploadFileModal()" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="uploadFileForm" onsubmit="submitFileUpload(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">เลือกไฟล์จากเครื่องของคุณ</label>
+                    <input type="file" id="fileInput" class="w-full bg-dark border border-gray-700 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-red-700 transition-all cursor-pointer focus:outline-none" required>
+                    <p class="text-xs text-gray-500 mt-2">* รองรับรูปภาพและวิดีโอ (แนะนำขนาดไม่เกิน 10MB)</p>
+                </div>
+                
+                <button type="submit" id="submitUploadBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors mt-4 shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> อัปโหลดและบันทึกลง Sheet
+                </button>
+            </form>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-darker border-t border-gray-800 pt-12 pb-8 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <!-- Brand -->
-                <div class="col-span-1 md:col-span-2">
-                    <a href="#" class="text-2xl font-bold tracking-wider flex items-center gap-2 mb-4">
-                        <i class="fa-solid fa-guitar text-primary"></i>
-                        <span class="text-white">รวม<span class="text-primary">คอร์ด</span></span>
-                    </a>
-                    <p class="text-gray-400 text-sm max-w-md">
-                        เว็บไซต์คลังคอร์ดกีตาร์ออนไลน์ แหล่งรวมคอร์ดเพลงไทยและสากล อัปเดตใหม่ล่าสุด พร้อมตารางคอร์ดสำหรับมือกีตาร์ทุกระดับ
-                    </p>
-                    <div class="flex gap-4 mt-6">
-                        <a href="#" class="w-10 h-10 rounded-full bg-card flex items-center justify-center text-gray-400 hover:text-white hover:bg-primary transition-all">
-                            <i class="fa-brands fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-card flex items-center justify-center text-gray-400 hover:text-white hover:bg-primary transition-all">
-                            <i class="fa-brands fa-twitter"></i>
-                        </a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-card flex items-center justify-center text-gray-400 hover:text-white hover:bg-primary transition-all">
-                            <i class="fa-brands fa-youtube"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Links 1 -->
-                <div>
-                    <h4 class="text-white font-semibold mb-4">เมนูหลัก</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">หน้าแรก</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">คอร์ดเพลงฮิต</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">คอร์ดเพลงใหม่</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">ศิลปิน</a></li>
-                    </ul>
-                </div>
-
-                <!-- Links 2 -->
-                <div>
-                    <h4 class="text-white font-semibold mb-4">ช่วยเหลือ</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">ตารางคอร์ดพื้นฐาน</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">วิธีจับคอร์ดทาบ</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">ติดต่อเรา</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">นโยบายความเป็นส่วนตัว</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-                <p class="text-gray-500 text-sm">
-                    &copy; 2026 รวมคอร์ด (Ruam Chord). สงวนลิขสิทธิ์.
-                </p>
-                <div class="text-gray-500 text-sm mt-2 md:mt-0">
-                    ออกแบบด้วย <i class="fa-solid fa-heart text-primary mx-1"></i> สำหรับคนรักเสียงดนตรี
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- JavaScript for Mobile Menu and Interactions -->
-    <script>
-        // Mobile menu toggle
-        const btn = document.getElementById('mobile-menu-btn');
-        const menu = document.getElementById('mobile-menu');
-
-        btn.addEventListener('click', () => {
-            menu.classList.toggle('hidden');
-        });
-
-        // Search Functionality Mockup using Custom Message Box (No alert)
-        const msgBox = document.getElementById('messageBox');
-        const msgContent = document.getElementById('messageContent');
-        const msgText = document.getElementById('messageText');
-
-        function showSearchMsg() {
-            const searchInput = document.getElementById('search').value;
-            if(searchInput.trim() === '') {
-                msgText.textContent = 'กรุณาพิมพ์ชื่อเพลงหรือศิลปินที่ต้องการค้นหา';
-            } else {
-                msgText.textContent = `กำลังค้นหาคอร์ดสำหรับ: "${searchInput}"... (นี่เป็นเวอร์ชันตัวอย่าง)`;
-            }
-            
-            msgBox.classList.remove('hidden');
-            // Small delay to allow display:block to apply before animating opacity
-            setTimeout(() => {
-                msgBox.classList.remove('opacity-0');
-                msgContent.classList.remove('scale-95');
-                msgContent.classList.add('scale-100');
-            }, 10);
-        }
-
-        function hideMessageBox() {
-            msgBox.classList.add('opacity-0');
-            msgContent.classList.remove('scale-100');
-            msgContent.classList.add('scale-95');
-            
-            // Wait for transition to finish before hiding
-            setTimeout(() => {
-                msgBox.classList.add('hidden');
-            }, 300);
-        }
-
-        // Admin Login and Roles Logic
-        const loginModal = document.getElementById('loginModal');
-        const loginContent = document.getElementById('loginContent');
-        const loginError = document.getElementById('loginError');
-
-        function showLoginModal() {
-            loginModal.classList.remove('hidden');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            loginError.classList.add('hidden');
-            
-            setTimeout(() => {
-                loginModal.classList.remove('opacity-0');
-                loginContent.classList.remove('scale-95');
-                loginContent.classList.add('scale-100');
-            }, 10);
-        }
-
-        function hideLoginModal() {
-            loginModal.classList.add('opacity-0');
-            loginContent.classList.remove('scale-100');
-            loginContent.classList.add('scale-95');
-            setTimeout(() => {
-                loginModal.classList.add('hidden');
-            }, 300);
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-
-            // Admin Credentials Check
-            if (user === 'Bank' && pass === 'Bank4481') {
-                hideLoginModal();
-                enableAdminMode();
-                showAdminMessage('ยินดีต้อนรับ แอดมิน Bank', 'เข้าสู่โหมดผู้ดูแลระบบเรียบร้อยแล้ว คุณสามารถแก้ไขหน้าเว็บและอัปโหลดสื่อได้');
-            } else {
-                loginError.classList.remove('hidden');
-            }
-        }
-
-        function enableAdminMode() {
-            // Update Desktop Nav
-            document.getElementById('navLoginBtn').classList.add('hidden');
-            document.getElementById('navAdminInfo').classList.remove('hidden');
-            document.getElementById('navAdminInfo').classList.add('flex');
-
-            // Update Mobile Nav
-            document.getElementById('mobileLoginBtn').classList.add('hidden');
-            document.getElementById('mobileAdminInfo').classList.remove('hidden');
-
-            // Show Admin Controls (Edit buttons & FAB)
-            const adminBtns = document.querySelectorAll('.admin-edit-btn');
-            adminBtns.forEach(btn => btn.classList.remove('hidden'));
-            document.getElementById('adminFab').classList.remove('hidden');
-        }
-
-        function logoutAdmin() {
-            // Revert Desktop Nav
-            document.getElementById('navLoginBtn').classList.remove('hidden');
-            document.getElementById('navAdminInfo').classList.add('hidden');
-            document.getElementById('navAdminInfo').classList.remove('flex');
-
-            // Revert Mobile Nav
-            document.getElementById('mobileLoginBtn').classList.remove('hidden');
-            document.getElementById('mobileAdminInfo').classList.add('hidden');
-
-            // Hide Admin Controls
-            const adminBtns = document.querySelectorAll('.admin-edit-btn');
-            adminBtns.forEach(btn => btn.classList.add('hidden'));
-            document.getElementById('adminFab').classList.add('hidden');
-            
-            showAdminMessage('ออกจากระบบแล้ว', 'กลับสู่โหมดผู้ใช้ทั่วไป');
-        }
-
-        // Custom Message for Admin actions (Reusing/Extending the MsgBox)
-        function showAdminMessage(title, detail) {
-            msgText.innerHTML = `<strong class="block text-lg mb-1 text-white">${title}</strong><span class="text-gray-400">${detail}</span>`;
-            msgBox.classList.remove('hidden');
-            setTimeout(() => {
-                msgBox.classList.remove('opacity-0');
-                msgContent.classList.remove('scale-95');
-                msgContent.classList.add('scale-100');
-            }, 10);
-        }
-
-        function showAdminAction(actionName) {
-            if (actionName === 'เพิ่มคอร์ดใหม่') {
-                showAddChordModal(); // เปิดหน้าต่างเพิ่มคอร์ด
-            } else if (actionName === 'อัปโหลดรูปภาพ' || actionName === 'อัปโหลดวิดีโอ') {
-                showUploadFileModal(actionName); // เปิดหน้าต่างอัปโหลด
-            } else {
-                showAdminMessage('คำสั่งผู้ดูแลระบบ', `คุณได้เลือกคำสั่ง: <b>${actionName}</b>`);
-            }
-        }
-
-        // --- ระบบอัปโหลดไฟล์ไปที่ Google Drive ---
-        const uploadFileModal = document.getElementById('uploadFileModal');
-        const uploadFileContent = document.getElementById('uploadFileContent');
-        
-        function showUploadFileModal(title) {
-            document.getElementById('uploadFileTitle').innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-primary"></i> ${title}`;
-            uploadFileModal.classList.remove('hidden');
-            document.getElementById('uploadFileForm').reset();
-            setTimeout(() => {
-                uploadFileModal.classList.remove('opacity-0');
-                uploadFileContent.classList.remove('scale-95');
-                uploadFileContent.classList.add('scale-100');
-            }, 10);
-        }
-
-        function hideUploadFileModal() {
-            uploadFileModal.classList.add('opacity-0');
-            uploadFileContent.classList.remove('scale-100');
-            uploadFileContent.classList.add('scale-95');
-            setTimeout(() => {
-                uploadFileModal.classList.add('hidden');
-            }, 300);
-        }
-
-        async function submitFileUpload(e) {
-            e.preventDefault();
-            
-            if (!gasWebAppUrl) {
-                hideUploadFileModal();
-                showAdminMessage('แจ้งเตือน', 'ยังไม่ได้เชื่อมต่อ Google Apps Script<br>กรุณาใส่ URL ในตัวแปร <b>gasWebAppUrl</b>');
-                return;
-            }
-
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-            if (!file) return;
-
-            const btn = document.getElementById('submitUploadBtn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังอัปโหลด (อาจใช้เวลาสักครู่)...';
-            btn.disabled = true;
-
-            // อ่านไฟล์เป็น Base64
-            const reader = new FileReader();
-            reader.onload = async function(event) {
-                // ตัดส่วนหัว data:image/jpeg;base64, ออก
-                const base64Data = event.target.result.split(',')[1]; 
-
-                const data = {
-                    action: 'uploadFile',
-                    fileName: file.name,
-                    mimeType: file.type,
-                    fileData: base64Data
-                };
-
-                try {
-                    const response = await fetch(gasWebAppUrl, {
-                        method: 'POST',
-                        body: JSON.stringify(data),
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        redirect: "follow" // ช่วยป้องกันปัญหาบางประการเกี่ยวกับ CORS Redirect
-                    });
-                    
+    <!-- Message Box (Instead of alert) -->
+<!-- ... existing code ... -->
                     const result = await response.json();
                     
                     hideUploadFileModal();
                     if(result.status === 'success') {
-                        showAdminMessage('อัปโหลดสำเร็จ!', `ไฟล์ถูกบันทึกที่ Google Drive แล้ว<br><br><a href="${result.fileUrl}" target="_blank" class="text-blue-400 underline break-all text-sm">คลิกเพื่อดูไฟล์</a>`);
+                        showAdminMessage('อัปโหลดสำเร็จ!', `ไฟล์ถูกบันทึกลง Drive และ Google Sheets แล้ว<br><br><a href="${result.fileUrl}" target="_blank" class="text-blue-400 underline break-all text-sm">คลิกดูไฟล์</a>`);
+                        
+                        // รีเฟรชตารางเพื่อโชว์ข้อมูลใหม่ที่เพิ่งเพิ่มลง Sheet
+                        loadChordsFromSheet();
                     } else {
                         showAdminMessage('เกิดข้อผิดพลาด', result.message);
-                    }
-                } catch (error) {
-                    hideUploadFileModal();
-                    showAdminMessage('เกิดข้อผิดพลาด', 'อัปโหลดไม่สำเร็จ: ' + error.message + '<br><br><span class="text-sm text-yellow-400">*โปรดเช็คว่าได้ตั้งค่า Apps Script เป็น "ทุกคน (Anyone)" แล้ว หรือไฟล์อาจใหญ่เกินไป</span>');
-                } finally {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }
-            };
-            
-            reader.onerror = function() {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                showAdminMessage('เกิดข้อผิดพลาด', 'ไม่สามารถอ่านไฟล์ได้');
-            }
-            
-            reader.readAsDataURL(file); // เริ่มกระบวนการแปลงไฟล์เป็น Base64
-        }
+<!-- ... existing code ... -->
+```
 
-        // --- ระบบเพิ่มคอร์ดใหม่ไปยัง Google Sheets ---
-        
-        const addChordModal = document.getElementById('addChordModal');
-        const addChordContent = document.getElementById('addChordContent');
+### 2. ไฟล์ Google Apps Script (`Code.gs`)
+แทนที่โค้ดเดิมทั้งหมดด้วยโค้ดใหม่นี้ เพื่อให้มันเซฟไฟล์ลง Google Drive และนำลิงก์ไปบันทึกลง Google Sheets ทันที
 
-        function showAddChordModal() {
-            addChordModal.classList.remove('hidden');
-            document.getElementById('addChordForm').reset();
-            setTimeout(() => {
-                addChordModal.classList.remove('opacity-0');
-                addChordContent.classList.remove('scale-95');
-                addChordContent.classList.add('scale-100');
-            }, 10);
-        }
+```javascript:Apps Script:Code.gs
+// ตั้งค่า ID ของชีต
+const SHEET_ID = '1CrNVkoqY_64xjXCawvj1uEqwzJFS6m0f1SXkXf54Ixc';
+const SHEET_NAME = 'Sheet1'; 
 
-        function hideAddChordModal() {
-            addChordModal.classList.add('opacity-0');
-            addChordContent.classList.remove('scale-100');
-            addChordContent.classList.add('scale-95');
-            setTimeout(() => {
-                addChordModal.classList.add('hidden');
-            }, 300);
-        }
-
-        // 🔥 สำคัญ: นำ URL ของ Web App ที่ได้จาก Apps Script มาใส่ในเครื่องหมายคำพูดด้านล่าง
-        // ตัวอย่าง: const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycby.../exec';
-        const gasWebAppUrl = ''; 
-
-        async function submitNewChord(e) {
-            e.preventDefault();
-            
-            if (!gasWebAppUrl) {
-                hideAddChordModal();
-                showAdminMessage('แจ้งเตือน', 'ยังไม่ได้เชื่อมต่อ Google Apps Script<br><span class="text-sm text-yellow-400">กรุณานำ URL ของ Web App ไปใส่ในตัวแปร <b>gasWebAppUrl</b> ในโค้ดของคุณก่อน</span>');
-                return;
-            }
-
-            const btn = document.getElementById('submitChordBtn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึกข้อมูล...';
-            btn.disabled = true;
-
-            // รวบรวมข้อมูลจากฟอร์ม
-            const data = {
-                action: 'addChord', // เพิ่ม Action เพื่อบอก Apps script ว่าให้ทำอะไร
-                songName: document.getElementById('newSongName').value,
-                artist: document.getElementById('newArtist').value,
-                extraInfo: document.getElementById('newExtraInfo').value || 'อัปเดตใหม่'
-            };
-
-            try {
-                // ยิงข้อมูลไปที่ Apps Script
-                await fetch(gasWebAppUrl, {
-                    method: 'POST',
-                    body: JSON.stringify(data),
-                    headers: {
-                        // ใช้ text/plain เลี่ยงปัญหา CORS Preflight ตอนยิงผ่านเบราว์เซอร์
-                        'Content-Type': 'text/plain;charset=utf-8', 
-                    },
-                    redirect: "follow" // ป้องกัน CORS Redirect Error
-                });
-                
-                hideAddChordModal();
-                showAdminMessage('สำเร็จ!', 'เพิ่มคอร์ดเพลงใหม่ลงใน Google Sheets เรียบร้อยแล้ว');
-                
-                // รีเฟรชตารางโชว์ข้อมูลใหม่ทันที
-                loadChordsFromSheet(); 
-            } catch (error) {
-                hideAddChordModal();
-                showAdminMessage('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้: ' + error.message);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-
-        // รหัส ID ของ Google Sheets ที่คุณให้มา
-        const sheetId = '1CrNVkoqY_64xjXCawvj1uEqwzJFS6m0f1SXkXf54Ixc';
-        // ใช้ Google Visualization API เพื่อดึงเป็นรูปแบบ JSON
-        const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
-
-        async function loadChordsFromSheet() {
-            const listContainer = document.getElementById('dynamic-chords-list');
-            if(!listContainer) return;
-
-            try {
-                listContainer.innerHTML = `
-                    <li class="p-8 text-center text-gray-400 flex flex-col items-center justify-center">
-                        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-primary mb-4"></i>
-                        กำลังโหลดข้อมูลจาก Google Sheets...
-                    </li>`;
-                
-                const response = await fetch(sheetUrl);
-                const text = await response.text();
-                
-                // แปลงข้อมูลรูปแบบ JSONP ที่ได้จาก Google ให้อยู่ในรูป JSON ปกติ
-                const jsonString = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\);/)[1];
-                const data = JSON.parse(jsonString);
-                
-                const rows = data.table.rows;
-                
-                if (!rows || rows.length === 0) {
-                    listContainer.innerHTML = '<li class="p-4 text-center text-gray-400">ไม่พบข้อมูลใน Google Sheets กรุณาเพิ่มข้อมูล</li>';
-                    return;
-                }
-
-                let html = '';
-                
-                // วนลูปสร้างรายการคอร์ดจากแถวใน Sheet
-                rows.forEach((row, index) => {
-                    // หากแถวแรกเป็น Header (มีคำว่าชื่อเพลง) ให้ข้าม
-                    if(index === 0 && row.c[0] && (row.c[0].v === 'ชื่อเพลง' || String(row.c[0].v).toLowerCase() === 'title')) return;
-
-                    // กำหนดคอลัมน์ A (0) = ชื่อเพลง, B (1) = ศิลปิน, C (2) = ข้อมูลเพิ่มเติม
-                    const songName = row.c[0] && row.c[0].v ? row.c[0].v : 'ไม่มีชื่อเพลง';
-                    const artist = row.c[1] && row.c[1].v ? row.c[1].v : 'ไม่ระบุศิลปิน';
-                    const extraInfo = row.c[2] && row.c[2].v ? row.c[2].v : 'อัปเดตใหม่';
-                    
-                    html += `
-                        <li class="p-4 hover:bg-gray-800/50 transition-colors flex items-center justify-between group cursor-pointer">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded bg-dark border border-gray-700 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all shadow-md">
-                                    <i class="fa-solid fa-music"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-white font-medium group-hover:text-primary transition-colors">${songName}</h4>
-                                    <p class="text-gray-500 text-sm">${artist}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs text-gray-400 hidden sm:block bg-dark px-2 py-1 rounded border border-gray-700">${extraInfo}</span>
-                                <button class="admin-edit-btn hidden text-gray-400 hover:text-primary transition-colors" onclick="showAdminAction('แก้ไขเพลง: ${songName}')">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </button>
-                            </div>
-                        </li>
-                    `;
-                });
-                
-                listContainer.innerHTML = html;
-                
-                // ตรวจสอบว่าแอดมินล็อกอินอยู่หรือไม่ เพื่อโชว์ปุ่มแก้ไขให้รายการที่เพิ่งโหลดมาใหม่
-                if(!document.getElementById('navAdminInfo').classList.contains('hidden')) {
-                    const adminBtns = listContainer.querySelectorAll('.admin-edit-btn');
-                    adminBtns.forEach(btn => btn.classList.remove('hidden'));
-                }
-
-            } catch (error) {
-                console.error("Error loading sheet:", error);
-                listContainer.innerHTML = `
-                    <li class="p-6 text-center text-red-400">
-                        <i class="fa-solid fa-triangle-exclamation text-3xl mb-3"></i><br>
-                        ไม่สามารถดึงข้อมูลได้<br>
-                        <span class="text-sm text-gray-500 mt-2 block">กรุณาตรวจสอบว่า Google Sheets ตั้งค่าการแชร์เป็น <b>"ทุกคนที่มีลิงก์" (Anyone with the link)</b> แล้ว</span>
-                    </li>`;
-            }
-        }
-
-        // สั่งให้โหลดข้อมูลทันทีที่เปิดเว็บ
-        window.addEventListener('load', loadChordsFromSheet);
-
-    </script>
-</body>
-</html>
+function doPost(e) {
+  try {
+    const postData = JSON.parse(e.postData.contents);
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheets()[0];
+    
+    // 1. กรณี: แอดมินทำการ "อัปโหลดไฟล์" (รูปภาพ / วิดีโอ)
+    if (postData.action === 'uploadFile') {
+      const folder = DriveApp.getRootFolder();
+      const bytes = Utilities.base64Decode(postData.fileData);
+      const blob = Utilities.newBlob(bytes, postData.mimeType, postData.fileName);
+      const file = folder.createFile(blob);
+      
+      // ทำให้ลิงก์เปิดดูได้แบบสาธารณะ
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      const fileUrl = file.getUrl();
+      
+      // บันทึกข้อมูลลง Google Sheets: คอลัมน์ A=ชื่อไฟล์, B=ประเภท, C=ลิงก์
+      sheet.appendRow([postData.fileName, 'ไฟล์ที่อัปโหลด', fileUrl]);
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success', 
+        fileUrl: fileUrl,
+        message: 'อัปโหลดและบันทึกลง Sheet สำเร็จ'
+      })).setMimeType(ContentService.MimeType.JSON);
+      
+    // 2. กรณี: แอดมินทำการ "เพิ่มคอร์ดใหม่"
+    } else if (postData.action === 'addChord') {
+      sheet.appendRow([postData.songName, postData.artist, postData.extraInfo]);
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success', 
+        message: 'เพิ่มข้อมูลคอร์ดเรียบร้อย'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+      
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error', 
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
