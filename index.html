@@ -1,100 +1,464 @@
-<!-- ... existing code ... -->
-                <button type="submit" id="submitChordBtn" class="w-full bg-primary hover:bg-red-700 text-white py-3 rounded-lg font-medium transition-colors mt-4 shadow-lg shadow-red-900/20">
-                    บันทึกข้อมูลลง Google Sheets
-                </button>
-            </form>
-        </div>
-    </div>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รวมคอร์ด (Ruam Chord) - คอร์ดเพลงฮิต</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: {
+                        primary: '#dc2626', // แดง
+                        dark: '#171717',    // ดำเข้ม
+                        card: '#262626'     // ดำเทา
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Prompt', sans-serif; background-color: #171717; color: white; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        .admin-only { display: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative">
 
-    <!-- Upload File Modal (หน้าต่างสำหรับอัปโหลดไฟล์รูป/วิดีโอ) -->
-    <div id="uploadFileModal" class="fixed inset-0 bg-black/80 z-[70] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
-        <div class="bg-card p-8 rounded-2xl border border-gray-700 max-w-md w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-300" id="uploadFileContent">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-white flex items-center gap-2" id="uploadFileTitle">
-                    <i class="fa-solid fa-cloud-arrow-up text-primary"></i> อัปโหลดไฟล์
-                </h3>
-                <button onclick="hideUploadFileModal()" class="text-gray-400 hover:text-white transition-colors">
-                    <i class="fa-solid fa-xmark text-xl"></i>
+    <nav class="bg-dark border-b border-red-900/50 sticky top-0 z-50 shadow-lg shadow-red-900/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-guitar text-primary text-2xl"></i>
+                    <span class="font-bold text-xl tracking-wide">รวม<span class="text-primary">คอร์ด</span></span>
+                </div>
+                <div>
+                    <button id="loginBtn" onclick="showLoginModal()" class="text-sm bg-card hover:bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-user"></i> <span>เข้าสู่ระบบ</span>
+                    </button>
+                    <button id="logoutBtn" onclick="logout()" class="hidden text-sm bg-primary hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>ออกจากระบบ (Bank)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="relative py-20 px-4 text-center overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-red-900/20 to-dark z-0"></div>
+        <div class="relative z-10 max-w-3xl mx-auto">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">ค้นหาคอร์ดเพลงที่คุณชอบ</h1>
+            <p class="text-gray-400 mb-8 text-lg">คอร์ดกีตาร์ คอร์ดเพลงฮิต อัปเดตใหม่ เล่นง่ายสำหรับมือใหม่และมือโปร</p>
+            <div class="relative max-w-xl mx-auto">
+                <input type="text" placeholder="พิมพ์ชื่อเพลง หรือ ศิลปิน..." class="w-full bg-card border border-gray-700 rounded-full py-4 pl-6 pr-12 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-2xl transition-all">
+                <button class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary transition-colors">
+                    <i class="fa-solid fa-magnifying-glass text-xl"></i>
                 </button>
             </div>
-            
-            <form id="uploadFileForm" onsubmit="submitFileUpload(event)" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-2">เลือกไฟล์จากเครื่องของคุณ</label>
-                    <input type="file" id="fileInput" class="w-full bg-dark border border-gray-700 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-red-700 transition-all cursor-pointer focus:outline-none" required>
-                    <p class="text-xs text-gray-500 mt-2">* รองรับรูปภาพและวิดีโอ (แนะนำขนาดไม่เกิน 10MB)</p>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <section class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <i class="fa-solid fa-fire text-primary text-2xl"></i>
+                <h2 class="text-2xl font-bold">คอร์ดเพลงฮิต</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-card rounded-xl p-5 border border-gray-800 hover:border-primary/50 transition-all group relative">
+                    <button class="admin-only absolute top-3 right-3 text-gray-400 hover:text-primary bg-dark p-2 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                    <div class="w-12 h-12 bg-dark rounded-full flex items-center justify-center mb-4 text-primary group-hover:scale-110 transition-transform"><i class="fa-solid fa-music"></i></div>
+                    <h3 class="font-bold text-lg mb-1">ซ่อน(ไม่)หา</h3>
+                    <p class="text-sm text-gray-400 mb-4">Jeff Satur</p>
+                    <span class="text-xs bg-red-900/30 text-primary px-2 py-1 rounded">คีย์ C</span>
                 </div>
-                
-                <button type="submit" id="submitUploadBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors mt-4 shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> อัปโหลดและบันทึกลง Sheet
-                </button>
+                <!-- Card 2 -->
+                <div class="bg-card rounded-xl p-5 border border-gray-800 hover:border-primary/50 transition-all group relative">
+                    <button class="admin-only absolute top-3 right-3 text-gray-400 hover:text-primary bg-dark p-2 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                    <div class="w-12 h-12 bg-dark rounded-full flex items-center justify-center mb-4 text-primary group-hover:scale-110 transition-transform"><i class="fa-solid fa-music"></i></div>
+                    <h3 class="font-bold text-lg mb-1">ดาวหางฮัลเลย์</h3>
+                    <p class="text-sm text-gray-400 mb-4">Fellow Fellow</p>
+                    <span class="text-xs bg-red-900/30 text-primary px-2 py-1 rounded">คีย์ G</span>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-card rounded-xl p-5 border border-gray-800 hover:border-primary/50 transition-all group relative">
+                    <button class="admin-only absolute top-3 right-3 text-gray-400 hover:text-primary bg-dark p-2 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                    <div class="w-12 h-12 bg-dark rounded-full flex items-center justify-center mb-4 text-primary group-hover:scale-110 transition-transform"><i class="fa-solid fa-music"></i></div>
+                    <h3 class="font-bold text-lg mb-1">วาดไว้</h3>
+                    <p class="text-sm text-gray-400 mb-4">Bowkylion</p>
+                    <span class="text-xs bg-red-900/30 text-primary px-2 py-1 rounded">คีย์ F</span>
+                </div>
+                <!-- Card 4 -->
+                <div class="bg-card rounded-xl p-5 border border-gray-800 hover:border-primary/50 transition-all group relative">
+                    <button class="admin-only absolute top-3 right-3 text-gray-400 hover:text-primary bg-dark p-2 rounded-lg"><i class="fa-solid fa-pen"></i></button>
+                    <div class="w-12 h-12 bg-dark rounded-full flex items-center justify-center mb-4 text-primary group-hover:scale-110 transition-transform"><i class="fa-solid fa-music"></i></div>
+                    <h3 class="font-bold text-lg mb-1">เลือดกรุ๊ปบี</h3>
+                    <p class="text-sm text-gray-400 mb-4">Chiki</p>
+                    <span class="text-xs bg-red-900/30 text-primary px-2 py-1 rounded">คีย์ D</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-bolt text-primary text-2xl"></i>
+                    <h2 class="text-2xl font-bold">คอร์ดอัปเดตใหม่ (จาก Google Sheets)</h2>
+                </div>
+                <button onclick="loadChordsFromSheet()" class="text-sm text-gray-400 hover:text-white flex items-center gap-1"><i class="fa-solid fa-rotate"></i> รีเฟรช</button>
+            </div>
+            <div class="bg-card rounded-xl border border-gray-800 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm" id="chordsTable">
+                        <thead class="bg-dark text-gray-400 border-b border-gray-800">
+                            <tr>
+                                <th class="px-6 py-4 font-medium">ชื่อเพลง</th>
+                                <th class="px-6 py-4 font-medium">ศิลปิน / ประเภท</th>
+                                <th class="px-6 py-4 font-medium">ข้อมูลเพิ่มเติม / ลิงก์</th>
+                                <th class="px-6 py-4 font-medium admin-only text-right">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-800" id="chordsList">
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                    <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-primary"></i><br>
+                                    กำลังโหลดข้อมูลจาก Google Sheets...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-dark border-t border-gray-800 py-8 text-center text-gray-500 text-sm mt-auto">
+        <p>© 2024 รวมคอร์ด (Ruam Chord) | เล่นกีตาร์ง่ายๆ สไตล์คุณ</p>
+    </footer>
+
+    <div id="adminFab" class="admin-only fixed bottom-6 right-6 z-40 flex-col gap-3 hidden">
+        <button onclick="showAdminAction('image')" class="w-12 h-12 bg-card hover:bg-gray-700 border border-gray-600 rounded-full flex items-center justify-center text-white shadow-lg transition-transform hover:scale-110" title="อัปโหลดรูปภาพ">
+            <i class="fa-solid fa-image"></i>
+        </button>
+        <button onclick="showAdminAction('video')" class="w-12 h-12 bg-card hover:bg-gray-700 border border-gray-600 rounded-full flex items-center justify-center text-white shadow-lg transition-transform hover:scale-110" title="อัปโหลดวิดีโอ">
+            <i class="fa-solid fa-video"></i>
+        </button>
+        <button onclick="showAdminAction('chord')" class="w-14 h-14 bg-primary hover:bg-red-700 rounded-full flex items-center justify-center text-white shadow-lg shadow-red-900/50 transition-transform hover:scale-110" title="เพิ่มคอร์ดใหม่">
+            <i class="fa-solid fa-plus text-xl"></i>
+        </button>
+    </div>
+
+    <div id="loginModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
+        <div class="bg-card p-8 rounded-2xl border border-gray-700 max-w-sm w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-300" id="loginContent">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-white">เข้าสู่ระบบแอดมิน</h3>
+                <button onclick="hideLoginModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">ชื่อผู้ใช้ (Username)</label>
+                    <input type="text" id="username" placeholder="ใส่ Bank" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">รหัสผ่าน (Password)</label>
+                    <input type="password" id="password" placeholder="ใส่ Bank4481" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary">
+                </div>
+                <button onclick="verifyLogin()" class="w-full bg-primary hover:bg-red-700 text-white py-3 rounded-lg font-medium transition-colors mt-2">ล็อกอิน</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addChordModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
+        <div class="bg-card p-8 rounded-2xl border border-gray-700 max-w-md w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-300" id="addChordContent">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-plus text-primary"></i> เพิ่มคอร์ดใหม่</h3>
+                <button onclick="hideAddChordModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="addChordForm" onsubmit="submitNewChord(event)" class="space-y-4">
+                <div><label class="block text-sm text-gray-400 mb-1">ชื่อเพลง</label><input type="text" id="songName" required class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"></div>
+                <div><label class="block text-sm text-gray-400 mb-1">ศิลปิน</label><input type="text" id="artistName" required class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"></div>
+                <div><label class="block text-sm text-gray-400 mb-1">คีย์เพลง / ข้อมูลเสริม</label><input type="text" id="extraInfo" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"></div>
+                <button type="submit" id="submitChordBtn" class="w-full bg-primary hover:bg-red-700 text-white py-3 rounded-lg font-medium transition-colors mt-4 shadow-lg">บันทึกลง Google Sheets</button>
             </form>
         </div>
     </div>
 
-    <!-- Message Box (Instead of alert) -->
-<!-- ... existing code ... -->
-                    const result = await response.json();
+    <div id="uploadFileModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
+        <div class="bg-card p-8 rounded-2xl border border-gray-700 max-w-md w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-300" id="uploadFileContent">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up text-primary"></i> อัปโหลดไฟล์</h3>
+                <button onclick="hideUploadFileModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="uploadFileForm" onsubmit="submitFileUpload(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">เลือกไฟล์ (รูปภาพ/วิดีโอ)</label>
+                    <input type="file" id="fileInput" required class="w-full bg-dark border border-gray-700 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-primary file:text-white hover:file:bg-red-700 transition-all cursor-pointer">
+                    <p class="text-xs text-gray-500 mt-2">* ขนาดไฟล์ไม่ควรใหญ่เกินไปเพื่อความเร็วในการส่ง</p>
+                </div>
+                <button type="submit" id="submitUploadBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors mt-4 shadow-lg flex justify-center gap-2 items-center"><i class="fa-solid fa-cloud-arrow-up"></i> บันทึกลง Drive & Sheets</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="msgModal" class="fixed inset-0 bg-black/80 z-[80] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
+        <div class="bg-card p-6 rounded-2xl border border-gray-700 max-w-sm w-full mx-4 shadow-2xl text-center transform scale-95 transition-transform duration-300" id="msgContent">
+            <div class="w-16 h-16 bg-dark rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-primary">
+                <i class="fa-solid fa-info text-2xl text-primary"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2" id="msgTitle">แจ้งเตือน</h3>
+            <p class="text-gray-400 mb-6 text-sm" id="msgText">รายละเอียดข้อความ</p>
+            <button onclick="hideMessage()" class="w-full bg-dark hover:bg-gray-800 text-white border border-gray-600 py-2 rounded-lg font-medium transition-colors">ตกลง</button>
+        </div>
+    </div>
+
+    <script>
+        /* ตัวแปรจัดการสถานะแอดมินและ URL Apps Script */
+        let isAdmin = false;
+        
+        // ! สำคัญมาก: เปลี่ยน URL ตรงนี้ให้เป็น URL ของ Web App ที่ได้จาก Google Apps Script ของคุณ
+        const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbyN_aI6hT02X_09yA4t2yvY1_NxyrL-iH4A-P8O1eX1J2A/exec'; 
+        
+        // ID ของ Google Sheets สำหรับอ่านข้อมูลมาแสดง (Public Sheet)
+        const sheetId = '1CrNVkoqY_64xjXCawvj1uEqwzJFS6m0f1SXkXf54Ixc';
+
+        function showModal(id, contentId) {
+            const modal = document.getElementById(id);
+            const content = document.getElementById(contentId);
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+        }
+        function hideModal(id, contentId) {
+            const modal = document.getElementById(id);
+            const content = document.getElementById(contentId);
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        function showLoginModal() { showModal('loginModal', 'loginContent'); }
+        function hideLoginModal() { hideModal('loginModal', 'loginContent'); }
+        function showAddChordModal() { showModal('addChordModal', 'addChordContent'); }
+        function hideAddChordModal() { hideModal('addChordModal', 'addChordContent'); }
+        function showUploadFileModal() { showModal('uploadFileModal', 'uploadFileContent'); }
+        function hideUploadFileModal() { hideModal('uploadFileModal', 'uploadFileContent'); }
+
+        function showMessage(title, text) {
+            document.getElementById('msgTitle').innerText = title;
+            document.getElementById('msgText').innerHTML = text; // ใช้ innerHTML เผื่อแสดงลิงก์
+            showModal('msgModal', 'msgContent');
+        }
+        function hideMessage() { hideModal('msgModal', 'msgContent'); }
+
+        function verifyLogin() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            
+            if(user === 'Bank' && pass === 'Bank4481') {
+                isAdmin = true;
+                hideLoginModal();
+                updateUI();
+                showMessage('สำเร็จ', 'เข้าสู่ระบบในฐานะแอดมินเรียบร้อยแล้ว');
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+            } else {
+                showMessage('ผิดพลาด', 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+            }
+        }
+
+        function logout() {
+            isAdmin = false;
+            updateUI();
+            showMessage('ออกจากระบบ', 'คุณได้ออกจากโหมดแอดมินแล้ว');
+        }
+
+        function updateUI() {
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                if(isAdmin) {
+                    el.style.display = (el.tagName === 'TH' || el.tagName === 'TD') ? 'table-cell' : 'flex';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+
+            if(isAdmin) {
+                document.getElementById('loginBtn').classList.add('hidden');
+                document.getElementById('logoutBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('loginBtn').classList.remove('hidden');
+                document.getElementById('logoutBtn').classList.add('hidden');
+            }
+        }
+
+        async function loadChordsFromSheet() {
+            const tbody = document.getElementById('chordsList');
+            tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500"><i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-primary"></i><br>กำลังโหลดข้อมูล...</td></tr>`;
+            
+            try {
+                // ดึงข้อมูลผ่าน Google Visualization API (ไม่ต้องใช้ Apps Script สำหรับดึงข้อมูล)
+                const queryUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Sheet1`;
+                const response = await fetch(queryUrl);
+                const csvData = await response.text();
+                
+                // แปลง CSV ง่ายๆ (แยกบรรทัด และแยกด้วย comma)
+                const rows = csvData.split('\n').map(row => {
+                    // ลบเครื่องหมาย " ออกจากข้อความ
+                    return row.split(',').map(cell => cell.replace(/^"(.*)"$/, '$1'));
+                });
+
+                tbody.innerHTML = '';
+                
+                // ข้ามแถวแรกถ้าเป็น Header, ถ้าข้อมูลว่างให้แจ้งเตือน
+                if(rows.length <= 1) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">ยังไม่มีข้อมูลใน Sheet</td></tr>`;
+                    return;
+                }
+
+                for(let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    if(!row[0] && !row[1]) continue; // ข้ามบรรทัดว่าง
                     
+                    const col1 = row[0] || '-';
+                    const col2 = row[1] || '-';
+                    
+                    // เช็คว่าลิงก์ใน col3 หรือไม่
+                    let col3 = row[2] || '-';
+                    if (col3.startsWith('http')) {
+                        col3 = `<a href="${col3}" target="_blank" class="text-blue-400 underline hover:text-blue-300">คลิกดูไฟล์</a>`;
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-800/50 transition-colors group';
+                    
+                    // ปรับ display ตามสถานะ Admin
+                    const adminDisplay = isAdmin ? 'table-cell' : 'none';
+
+                    tr.innerHTML = `
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-white">${col1}</div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-300">${col2}</td>
+                        <td class="px-6 py-4 text-gray-400">
+                            <span class="bg-gray-800 text-xs px-2 py-1 rounded border border-gray-700">${col3}</span>
+                        </td>
+                        <td class="px-6 py-4 text-right admin-only" style="display: ${adminDisplay};">
+                            <button class="text-gray-500 hover:text-primary transition-colors p-2"><i class="fa-solid fa-pen"></i></button>
+                            <button class="text-gray-500 hover:text-red-500 transition-colors p-2"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-400"><i class="fa-solid fa-circle-exclamation text-xl mb-2"></i><br>โหลดข้อมูลไม่สำเร็จ กรุณาตรวจสอบการแชร์ Google Sheets</td></tr>`;
+                console.error("Fetch Error: ", error);
+            }
+        }
+
+        function showAdminAction(type) {
+            if (type === 'image' || type === 'video') {
+                showUploadFileModal();
+            } else if (type === 'chord') {
+                showAddChordModal();
+            }
+        }
+
+        async function submitNewChord(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitChordBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+            btn.disabled = true;
+
+            const payload = {
+                action: 'addChord',
+                songName: document.getElementById('songName').value,
+                artist: document.getElementById('artistName').value,
+                extraInfo: document.getElementById('extraInfo').value
+            };
+
+            try {
+                const response = await fetch(gasWebAppUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', // บังคับไม่ให้เกิด CORS Error
+                    headers: { 'Content-Type': 'text/plain' }, // ป้องกัน Preflight Option
+                    body: JSON.stringify(payload)
+                });
+                
+                hideAddChordModal();
+                showMessage('สำเร็จ', 'ส่งข้อมูลไปยัง Google Sheets แล้ว (ระบบจะรีเฟรชตารางในอีกสักครู่)');
+                document.getElementById('addChordForm').reset();
+                
+                // หน่วงเวลาโหลดข้อมูลใหม่
+                setTimeout(loadChordsFromSheet, 2000);
+
+            } catch (error) {
+                showMessage('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อได้: ' + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function submitFileUpload(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const btn = document.getElementById('submitUploadBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังอัปโหลด... อาจใช้เวลาสักครู่';
+            btn.disabled = true;
+
+            try {
+                // แปลงไฟล์เป็น Base64
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = async function() {
+                    const base64Data = reader.result.split(',')[1]; 
+                    
+                    const payload = {
+                        action: 'uploadFile',
+                        fileName: file.name,
+                        mimeType: file.type,
+                        fileData: base64Data
+                    };
+
+                    // ส่งไปที่ Apps Script
+                    const response = await fetch(gasWebAppUrl, {
+                        method: 'POST',
+                        mode: 'no-cors', 
+                        headers: { 'Content-Type': 'text/plain' },
+                        body: JSON.stringify(payload)
+                    });
+
                     hideUploadFileModal();
-                    if(result.status === 'success') {
-                        showAdminMessage('อัปโหลดสำเร็จ!', `ไฟล์ถูกบันทึกลง Drive และ Google Sheets แล้ว<br><br><a href="${result.fileUrl}" target="_blank" class="text-blue-400 underline break-all text-sm">คลิกดูไฟล์</a>`);
-                        
-                        // รีเฟรชตารางเพื่อโชว์ข้อมูลใหม่ที่เพิ่งเพิ่มลง Sheet
-                        loadChordsFromSheet();
-                    } else {
-                        showAdminMessage('เกิดข้อผิดพลาด', result.message);
-<!-- ... existing code ... -->
-```
+                    showMessage('อัปโหลดสำเร็จ!', `ไฟล์ถูกส่งไปบันทึกใน Google Drive และ Sheets แล้ว`);
+                    document.getElementById('uploadFileForm').reset();
+                    
+                    // หน่วงเวลาให้ Apps Script เขียนข้อมูลเสร็จแล้วดึงข้อมูลมาใหม่
+                    setTimeout(loadChordsFromSheet, 3000);
+                    
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                };
+            } catch (error) {
+                showMessage('เกิดข้อผิดพลาด', error.message);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
 
-### 2. ไฟล์ Google Apps Script (`Code.gs`)
-แทนที่โค้ดเดิมทั้งหมดด้วยโค้ดใหม่นี้ เพื่อให้มันเซฟไฟล์ลง Google Drive และนำลิงก์ไปบันทึกลง Google Sheets ทันที
-
-```javascript:Apps Script:Code.gs
-// ตั้งค่า ID ของชีต
-const SHEET_ID = '1CrNVkoqY_64xjXCawvj1uEqwzJFS6m0f1SXkXf54Ixc';
-const SHEET_NAME = 'Sheet1'; 
-
-function doPost(e) {
-  try {
-    const postData = JSON.parse(e.postData.contents);
-    const ss = SpreadsheetApp.openById(SHEET_ID);
-    const sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheets()[0];
-    
-    // 1. กรณี: แอดมินทำการ "อัปโหลดไฟล์" (รูปภาพ / วิดีโอ)
-    if (postData.action === 'uploadFile') {
-      const folder = DriveApp.getRootFolder();
-      const bytes = Utilities.base64Decode(postData.fileData);
-      const blob = Utilities.newBlob(bytes, postData.mimeType, postData.fileName);
-      const file = folder.createFile(blob);
-      
-      // ทำให้ลิงก์เปิดดูได้แบบสาธารณะ
-      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-      const fileUrl = file.getUrl();
-      
-      // บันทึกข้อมูลลง Google Sheets: คอลัมน์ A=ชื่อไฟล์, B=ประเภท, C=ลิงก์
-      sheet.appendRow([postData.fileName, 'ไฟล์ที่อัปโหลด', fileUrl]);
-      
-      return ContentService.createTextOutput(JSON.stringify({
-        status: 'success', 
-        fileUrl: fileUrl,
-        message: 'อัปโหลดและบันทึกลง Sheet สำเร็จ'
-      })).setMimeType(ContentService.MimeType.JSON);
-      
-    // 2. กรณี: แอดมินทำการ "เพิ่มคอร์ดใหม่"
-    } else if (postData.action === 'addChord') {
-      sheet.appendRow([postData.songName, postData.artist, postData.extraInfo]);
-      
-      return ContentService.createTextOutput(JSON.stringify({
-        status: 'success', 
-        message: 'เพิ่มข้อมูลคอร์ดเรียบร้อย'
-      })).setMimeType(ContentService.MimeType.JSON);
-    }
-      
-  } catch (error) {
-    return ContentService.createTextOutput(JSON.stringify({
-      status: 'error', 
-      message: error.toString()
-    })).setMimeType(ContentService.MimeType.JSON);
-  }
-}
+        // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
+        window.onload = function() {
+            loadChordsFromSheet();
+        };
+    </script>
+</body>
+</html>
